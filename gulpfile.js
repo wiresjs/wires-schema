@@ -30,7 +30,7 @@ let projectSystemJs = ts.createProject('src/tsconfig.json', {
     outFile: undefined
 });
 
-const LIBRARY_NAME = 'hello-world';
+const LIBRARY_NAME = 'wires-schema';
 
 gulp.task('build', function() {
     let result = gulp.src('src/**/*.ts')
