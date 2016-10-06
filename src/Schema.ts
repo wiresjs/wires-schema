@@ -1,9 +1,10 @@
+import { SchemaAdapter } from "./SchemaAdapter";
 import { AttributeInterceptor, ElementInterceptor } from "./Interceptors";
 import { isBackend } from "./Utils";
 import { Dom } from "universal-dom";
 import { HTMLParser } from "wires-html-parser";
 
-
+declare const window: any;
 /**
  *
  *
@@ -11,6 +12,9 @@ import { HTMLParser } from "wires-html-parser";
  * @class Schema
  */
 export class Schema {
+    public json: any = {};
+
+    protected adapter: SchemaAdapter;
     /**
      *
      *
@@ -39,6 +43,16 @@ export class Schema {
 
     private whenReadyClosure: { (schema: Schema): void; };
 
+    /**
+     *
+     *
+     * @param {SchemaAdapter} adapter
+     *
+     * @memberOf Schema
+     */
+    public setAdapter(adapter: SchemaAdapter) {
+        this.adapter = adapter;
+    }
 
     /**
      *
@@ -65,54 +79,53 @@ export class Schema {
     /**
      *
      *
+     * @param {{}} data
+     * @returns {*}
+     *
+     * @memberOf Schema
+     */
+    public digest(ready: { (json: any): void; }): any {
+
+        if (isBackend) {
+            if (!this.adapter) {
+                throw new Error("Schema Adapter is required!");
+            }
+            this.adapter.getContent().then(schemaMap => {
+                schemaMap.forEach((html, key) => {
+                    let json = HTMLParser.parse(html, true);;
+
+                    this.json[key] = this.prepare(json);
+                });
+                return ready(this.json);
+            });
+        } else {
+            if (window.__universal_schema__ === undefined) {
+                throw new Error("Schema not found!\nYou need to set schema to window.__universal_schema__!");
+            }
+            this.json = window.__universal_schema__;
+        }
+        return ready(this.json);
+    }
+
+    /**
+     *
+     *
      * @returns
      *
      * @memberOf Schema
      */
-    public compileFromDirectory(dir: string) {
-        if (!isBackend) {
-            return;
-        }
-        return new Promise((resolve, reject) => {
-            const walk = require("walk");
-            const fs = require("fs");
-            const appRoot = require("app-root-path");
-            const path = require("path");
-            let jsonSchema = [];
-
-            dir = dir[0] !== "/" ? path.join(appRoot.path, dir) : dir;
-            let walker = walk.walk(dir);
-
-            walker.on("file", (root, fileStats, next) => {
-                let contents = fs.readFileSync(path.join(dir, fileStats.name)).toString();
-                let data = HTMLParser.parse(contents, true);
-                this.walkJSON(data);
-                console.log(data);
-                next();
-            });
-
-            walker.on("errors", (root, nodeStatsArray, next) => {
-                next();
-            });
-
-            walker.on("end", () => {
-                if (this.whenReadyClosure !== undefined) {
-                    this.whenReadyClosure(this);
-                }
-                return resolve(jsonSchema);
-            });
-        });
+    public expressSchema() {
+        return (req, res, next) => {
+            let content = `window.__universal_schema__ = ${JSON.stringify(this.json)}`;
+            res.header("content-type", "text/javascript");
+            res.send(content);
+        };
     }
-
-    public whenReady(fn: { (schema: Schema): void; }) {
-        this.whenReadyClosure = fn;
-    }
-
-    protected walkJSON(json: any[]) {
+    protected prepare(json: any[]) {
 
         json.forEach(item => {
             if (item.children) {
-                item.children = this.walkJSON(item.children);
+                item.children = this.prepare(item.children);
             }
         });
         return json;

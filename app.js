@@ -12,7 +12,8 @@ app.use(bodyParser.urlencoded({
 
 
 const WiresSchema = require(__dirname + "/build/wires-schema.js")
-
+// kick in sample app
+const schema = WiresSchema.SampleApp();
 
 app.use(cookieParser('your secret here'));
 
@@ -21,13 +22,14 @@ app.use("/lib/universal-dom", express.static(`${appRoot.path}/node_modules/unive
 app.use("/lib/wires-html-parser", express.static(`${appRoot.path}/node_modules/wires-html-parser/dist/universal`));
 
 
+app.use("/lib/schema.js", schema.expressSchema())
+
+
 app.get("/", (req, res) => {
     let contents = fs.readFileSync(`${appRoot.path}/index.html`).toString();
     res.send(contents);
 })
 
-// kick in sample app
-WiresSchema.SampleApp();
 
 var appPort = process.env.PORT || 4000;
 var server = app.listen(appPort, function() {
