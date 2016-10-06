@@ -1,4 +1,4 @@
-import { JSONSchema, AttributeInterceptor, ElementInterceptor } from './Interceptors';
+import { AttributeInterceptor, ElementInterceptor } from "./Interceptors";
 import { isBackend } from "./Utils";
 import { Dom } from "universal-dom";
 import { HTMLParser } from "wires-html-parser";
@@ -27,7 +27,7 @@ export class Schema {
      * @type {Set<AttributeInterceptor>}
      * @memberOf Schema
      */
-    protected attributeInterceptors: Map<string,AttributeInterceptor> = new Map();
+    protected attributeInterceptors: Map<string, AttributeInterceptor> = new Map();
 
     /**
      * Creates an instance of Schema.
@@ -36,9 +36,8 @@ export class Schema {
      *
      * @memberOf Schema
      */
-    constructor(private dir: string) { }
 
-
+    private whenReadyClosure: { (schema: Schema): void; };
 
 
     /**
@@ -48,7 +47,7 @@ export class Schema {
      *
      * @memberOf Schema
      */
-    public addAttributeInterceptor(name : string, interceptor: AttributeInterceptor) {
+    public addAttributeInterceptor(name: string, interceptor: AttributeInterceptor) {
         this.attributeInterceptors.set(name, interceptor);
     }
 
@@ -70,7 +69,7 @@ export class Schema {
      *
      * @memberOf Schema
      */
-    public compile() {
+    public compileFromDirectory(dir: string) {
         if (!isBackend) {
             return;
         }
@@ -81,7 +80,7 @@ export class Schema {
             const path = require("path");
             let jsonSchema = [];
 
-            let dir = this.dir[0] !== "/" ? path.join(appRoot.path, this.dir) : this.dir;
+            dir = dir[0] !== "/" ? path.join(appRoot.path, dir) : dir;
             let walker = walk.walk(dir);
 
             walker.on("file", (root, fileStats, next) => {
@@ -97,9 +96,16 @@ export class Schema {
             });
 
             walker.on("end", () => {
+                if (this.whenReadyClosure !== undefined) {
+                    this.whenReadyClosure(this);
+                }
                 return resolve(jsonSchema);
             });
         });
+    }
+
+    public whenReady(fn: { (schema: Schema): void; }) {
+        this.whenReadyClosure = fn;
     }
 
     protected walkJSON(json: any[]) {

@@ -1,3 +1,3 @@
-export  *  from "./Schema";
-export *  from "./SampleApp";
+export * from "./Schema";
+export * from "./demo/SampleApp";
 export * from "./Interceptors";

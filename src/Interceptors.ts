@@ -1,54 +1,6 @@
+import { JSONSchema } from "./JSONSchema";
 import { IUniversalComment, IUniversalElement, IUniversalAttribute, IUniversalTextNode } from "universal-dom";
-/**
- *
- *
- * @export
- * @class JSONSchema
- */
-export class JSONSchema {
-    /**
-     * Creates an instance of JSONSchema.
-     *
-     * @param {*} json
-     *
-     * @memberOf JSONSchema
-     */
-    constructor(private json: any) {
 
-    }
-    /**
-     *
-     *
-     * @param {string} name
-     * @returns
-     *
-     * @memberOf JSONSchema
-     */
-    public get(name: string) {
-        return this.json[name];
-    }
-    /**
-     *
-     *
-     * @param {string} name
-     * @param {*} value
-     *
-     * @memberOf JSONSchema
-     */
-    public set(name: string, value: any) {
-        this.json[name] = value;
-    }
-    /**
-     *
-     *
-     * @returns
-     *
-     * @memberOf JSONSchema
-     */
-    public getJSON() {
-        return this.json;
-    }
-}
 
 
 /**
@@ -80,7 +32,7 @@ export class AttributeInterceptor {
      *
      * @memberOf ElementInterceptor
      */
-    public consume(attribute: IUniversalAttribute<any> | IUniversalElement<any>, schema: JSONSchema) {
+    public consume(attribute: IUniversalAttribute<any>, schema: JSONSchema) {
         return;
     }
 }
@@ -114,6 +66,8 @@ export class ElementInterceptor {
      * @memberOf ElementInterceptor
      */
     public consume(element: IUniversalComment<any> | IUniversalElement<any>, schema: JSONSchema) {
+
+
         return;
     }
 }
