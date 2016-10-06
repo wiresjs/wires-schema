@@ -9,7 +9,7 @@ const sourcemaps = require('gulp-sourcemaps');
 const runSequence = require('run-sequence');
 const uglify = require("gulp-uglify");
 const babel = require("gulp-babel");
-
+const spawn = require('child_process').spawn;
 let typingsProject = ts.createProject('src/tsconfig.json', {
     module: "system",
     outFile: undefined,
@@ -32,6 +32,25 @@ let projectSystemJs = ts.createProject('src/tsconfig.json', {
 
 const LIBRARY_NAME = 'wires-schema';
 
+
+let node;
+gulp.task('server', function() {
+    if (node) node.kill()
+    node = spawn('node', ['app.js'], {
+        stdio: 'inherit'
+    })
+    node.on('close', function(code) {
+        if (code === 8) {
+            gulp.log('Error detected, waiting for changes...');
+        }
+    });
+});
+gulp.task("start", ["build"], function() {
+    runSequence("server");
+    gulp.watch(['src/**/*.ts', "app.js", "views/**/*.html"], () => {
+        runSequence('build', "server");
+    });
+})
 gulp.task('build', function() {
     let result = gulp.src('src/**/*.ts')
         .pipe(sourcemaps.init())
