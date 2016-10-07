@@ -1,22 +1,26 @@
+import { Context } from "./../../Context";
+import { getWatchableText } from "./../../Utils";
 import { IUniversalTextNode } from "universal-dom";
-import { JSONSchema } from "./../../JSONSchema";
+
 import { TextNodeInterceptor } from "../../Interceptors";
 
+
 export class SchemaTextInterceptor extends TextNodeInterceptor {
-    public intercept(element: JSONSchema): any {
-        return;
+    public intercept(json: any): any {
+
+        // we re-configure schema here.
+        // Hello {{user.name} is converted into
+        // [ 'Hello ',   { expression: 'user.name', watchable: [ 'user.name' ] }
+        json.value = getWatchableText(json.value);
+        console.log(json.value);
     }
 
-    /**
-     *
-     *
-     * @param {(IUniversalComment<any> | IUniversalElement<any>)} element
-     * @param {JSONSchema} schema
-     * @returns
-     *
-     * @memberOf ElementInterceptor
-     */
-    public consume(attribute: IUniversalTextNode<any>, schema: JSONSchema) {
+
+    public consume(text: IUniversalTextNode<any>, context: Context, json: any) {
+        // here we get
+        // [ 'Hello ',   { expression: 'user.name', watchable: [ 'user.name' ] }
+        // one thing left is to evaluate and watch ....
+        text.setValue(json.value);
         return;
     }
 }

@@ -15,7 +15,8 @@ declare const window: any;
 export class Schema {
     public json: any = {};
 
-    protected adapter: SchemaAdapter;
+
+
     /**
      *
      *
@@ -23,9 +24,9 @@ export class Schema {
      * @type {Set<ElementInterceptor>}
      * @memberOf Schema
      */
-    protected elementInterceptors: Set<ElementInterceptor> = new Set();
+    public elementInterceptors: Set<ElementInterceptor> = new Set();
 
-    protected rootContext: Context;
+
     /**
      *
      *
@@ -33,14 +34,19 @@ export class Schema {
      * @type {Set<AttributeInterceptor>}
      * @memberOf Schema
      */
-    protected attributeInterceptors: Map<string, AttributeInterceptor> = new Map();
+    public attributeInterceptors: Map<string, AttributeInterceptor> = new Map();
 
 
-    protected textNodeInterceptor: TextNodeInterceptor;
+    public textNodeInterceptor: TextNodeInterceptor;
+
+    protected rootContext: Context;
+
+    protected adapter: SchemaAdapter;
 
     private whenReadyClosure: { (schema: Schema): void; };
 
     private onRequestClosure: { (schema: Schema): void; };
+
 
     public whenReady(fn: { (schema: Schema): void; }) {
         this.whenReadyClosure = fn;
@@ -64,10 +70,12 @@ export class Schema {
      * @memberOf Schema
      */
     public addAttributeInterceptor(name: string, interceptor: AttributeInterceptor) {
+        interceptor.setSchema(this);
         this.attributeInterceptors.set(name, interceptor);
     }
 
     public registerTextNodeInterceptor(interceptor: TextNodeInterceptor) {
+        interceptor.setSchema(this);
         this.textNodeInterceptor = interceptor;
     }
 
@@ -79,6 +87,7 @@ export class Schema {
      * @memberOf Schema
      */
     public addElementInterceptor(interceptor: ElementInterceptor) {
+        interceptor.setSchema(this);
         this.elementInterceptors.add(interceptor);
     }
 
@@ -115,7 +124,6 @@ export class Schema {
      * @memberOf Schema
      */
     public digest(): Schema {
-
         if (isBackend) {
             if (!this.adapter) {
                 throw new Error("Schema Adapter is required!");
@@ -136,7 +144,6 @@ export class Schema {
                 this.whenReadyClosure(this);
             }
         }
-
         return this;
     }
 
@@ -156,6 +163,9 @@ export class Schema {
     }
     protected prepare(json: any[]) {
         json.forEach(item => {
+            if (item.type === "text" && this.textNodeInterceptor) {
+                this.textNodeInterceptor.intercept(item);
+            }
             if (item.children) {
                 item.children = this.prepare(item.children);
             }

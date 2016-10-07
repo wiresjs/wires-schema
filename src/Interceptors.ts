@@ -1,3 +1,5 @@
+import { Context } from "./Context";
+import { Schema } from "./Schema";
 import { JSONSchema } from "./JSONSchema";
 import { IUniversalComment, IUniversalElement, IUniversalAttribute, IUniversalTextNode } from "universal-dom";
 
@@ -10,6 +12,10 @@ import { IUniversalComment, IUniversalElement, IUniversalAttribute, IUniversalTe
  * @class AttributeInterceptor
  */
 export class AttributeInterceptor {
+    protected schema: Schema;
+    public setSchema(schema: Schema) {
+        this.schema = schema;
+    }
     /**
      *
      *
@@ -19,7 +25,7 @@ export class AttributeInterceptor {
      *
      * @memberOf AttributeInterceptor
      */
-    public intercept(attr: JSONSchema, element: JSONSchema): any {
+    public intercept(attr: JSONSchema, json: any): any {
         return;
     }
 
@@ -44,6 +50,10 @@ export class AttributeInterceptor {
  * @class ElementInterceptor
  */
 export class ElementInterceptor {
+    protected schema: Schema;
+    public setSchema(schema: Schema) {
+        this.schema = schema;
+    }
     /**
      *
      *
@@ -52,7 +62,7 @@ export class ElementInterceptor {
      *
      * @memberOf ElementInterceptor
      */
-    public intercept(element: JSONSchema): any {
+    public intercept(json: any): any {
         return;
     }
 
@@ -71,6 +81,10 @@ export class ElementInterceptor {
 }
 
 export class TextNodeInterceptor {
+    protected schema: Schema;
+    public setSchema(schema: Schema) {
+        this.schema = schema;
+    }
     /**
      *
      *
@@ -79,7 +93,7 @@ export class TextNodeInterceptor {
      *
      * @memberOf ElementInterceptor
      */
-    public intercept(element: JSONSchema): any {
+    public intercept(json: any): any {
         return;
     }
 
@@ -92,7 +106,8 @@ export class TextNodeInterceptor {
      *
      * @memberOf ElementInterceptor
      */
-    public consume(element: IUniversalTextNode<any>, schema: JSONSchema) {
+    public consume(element: IUniversalTextNode<any>, context : Context, schema: any) {
+
         return;
     }
 }

@@ -11,10 +11,15 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.use(cookieParser('your secret here'));
-
+const external = (p) => {
+    return express.static(`${appRoot.path}/node_modules/${p}`)
+}
 app.use("/build", express.static(`${appRoot.path}/build/`));
-app.use("/lib/universal-dom", express.static(`${appRoot.path}/node_modules/universal-dom/dist/universal`));
-app.use("/lib/wires-html-parser", express.static(`${appRoot.path}/node_modules/wires-html-parser/dist/universal`));
+app.use("/lib/universal-dom", external('universal-dom/dist/universal'));
+app.use("/lib/wires-html-parser", external('wires-html-parser/dist/universal'));
+app.use("/lib/async-watch", external("async-watch/dist/"));
+app.use("/lib/extract-vars", external("extract-vars/dist/"));
+app.use("/lib/wires-angular-expressions", external("wires-angular-expressions/src/"));
 
 const WiresSchema = require(__dirname + "/build/wires-schema.js")
     // kick in sample app

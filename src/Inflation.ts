@@ -77,23 +77,23 @@ export class Inflation {
             if (item.type === "tag") {
                 let el = <IUniversalElement<any>>(parentChildren[index] ? parentChildren[index] : Dom.createElement(item.name));
                 if (!el.isRehydrated()) {
-                    console.log("node render", el);
                     el.appendTo(parent);
-                } else {
-                    console.log("RE-hydrated tag", el);
                 }
                 if (item.children) {
                     this.start(item.children, el);
                 }
             }
             if (item.type === "text") {
-                let el = <IUniversalTextNode<any>>(parentChildren[index] ? parentChildren[index] : Dom.createTextNode(item.value));
-                if (!el.isRehydrated()) {
-                    console.log("text render", el);
-                    el.appendTo(parent);
-                } else {
-                    console.log("RE-hydrate text", el);
+                let el = <IUniversalTextNode<any>>(parentChildren[index] ? parentChildren[index] : Dom.createTextNode(""));
+                // check for interceptor
+                if (this.schema.textNodeInterceptor) {
+                    this.schema.textNodeInterceptor.consume(el, this.context, item);
                 }
+
+                if (!el.isRehydrated()) {
+                    el.appendTo(parent);
+                }
+
             }
         });
 
