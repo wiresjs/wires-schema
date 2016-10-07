@@ -1,5 +1,6 @@
+import { Context } from "./Context";
 import { SchemaAdapter } from "./SchemaAdapter";
-import { AttributeInterceptor, ElementInterceptor } from "./Interceptors";
+import { AttributeInterceptor, ElementInterceptor, TextNodeInterceptor } from "./Interceptors";
 import { isBackend } from "./Utils";
 import { Dom } from "universal-dom";
 import { HTMLParser } from "wires-html-parser";
@@ -24,6 +25,7 @@ export class Schema {
      */
     protected elementInterceptors: Set<ElementInterceptor> = new Set();
 
+    protected rootContext: Context;
     /**
      *
      *
@@ -33,16 +35,16 @@ export class Schema {
      */
     protected attributeInterceptors: Map<string, AttributeInterceptor> = new Map();
 
-    /**
-     * Creates an instance of Schema.
-     *
-     * @param {string} dir
-     *
-     * @memberOf Schema
-     */
+
+    protected textNodeInterceptor: TextNodeInterceptor;
 
     private whenReadyClosure: { (schema: Schema): void; };
 
+    private onRequestClosure: { (schema: Schema): void; };
+
+    public whenReady(fn: { (schema: Schema): void; }) {
+        this.whenReadyClosure = fn;
+    }
     /**
      *
      *
@@ -65,6 +67,10 @@ export class Schema {
         this.attributeInterceptors.set(name, interceptor);
     }
 
+    public registerTextNodeInterceptor(interceptor: TextNodeInterceptor) {
+        this.textNodeInterceptor = interceptor;
+    }
+
     /**
      *
      *
@@ -76,6 +82,30 @@ export class Schema {
         this.elementInterceptors.add(interceptor);
     }
 
+
+    public setRootContext(context: Context) {
+        this.rootContext = context;
+    }
+
+    public getRootContext(): Context {
+        return this.rootContext;
+    }
+
+    public onRequest(cb: { (schema: Schema): void; }) {
+        this.onRequestClosure = cb;
+    }
+
+    public trigger(cb: { (inflation: any): void; }) {
+
+        if (this.onRequestClosure) {
+            this.rootContext.resolve(() => {
+                let inflation = this.onRequestClosure(this.json);
+                if (cb !== undefined) {
+                    return cb(inflation);
+                }
+            });
+        }
+    }
     /**
      *
      *
@@ -84,7 +114,7 @@ export class Schema {
      *
      * @memberOf Schema
      */
-    public digest(ready: { (json: any): void; }): any {
+    public digest(): Schema {
 
         if (isBackend) {
             if (!this.adapter) {
@@ -92,19 +122,22 @@ export class Schema {
             }
             this.adapter.getContent().then(schemaMap => {
                 schemaMap.forEach((html, key) => {
-                    let json = HTMLParser.parse(html, true);;
-
+                    let json = HTMLParser.parse(html, true);
                     this.json[key] = this.prepare(json);
                 });
-                return ready(this.json);
+                this.whenReadyClosure(this);
             });
         } else {
             if (window.__universal_schema__ === undefined) {
                 throw new Error("Schema not found!\nYou need to set schema to window.__universal_schema__!");
             }
             this.json = window.__universal_schema__;
+            if (this.whenReadyClosure) {
+                this.whenReadyClosure(this);
+            }
         }
-        return ready(this.json);
+
+        return this;
     }
 
     /**
@@ -122,7 +155,6 @@ export class Schema {
         };
     }
     protected prepare(json: any[]) {
-
         json.forEach(item => {
             if (item.children) {
                 item.children = this.prepare(item.children);

@@ -3,7 +3,6 @@
 
 <head>
     <title></title>
-
 </head>
 
 <body>
@@ -11,13 +10,13 @@
 </body>
 <script type="text/javascript" src="lib/universal-dom/universal-dom.js"></script>
 <script type="text/javascript" src="lib/wires-html-parser/dist.js"></script>
-
 <script type="text/javascript" src="/lib/schema.js"></script>
 <script type="text/javascript" src="/build/wires-schema.js"></script>
 
-
+<div class="application">$SSR</div>
 <script>
     let sampleApp = SampleApp();
+    sampleApp.trigger(() => {});
 </script>
 
 </html>

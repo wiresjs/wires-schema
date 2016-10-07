@@ -37,6 +37,15 @@ export class JSONSchema {
     public set(name: string, value: any) {
         this.json[name] = value;
     }
+
+    public each(cb: { (obj: any, index: number) }) {
+        for (let i = 0; i < this.json.length; i++) {
+            let result = cb(this.json[i], i);
+            if (result === false) {
+                return;
+            }
+        }
+    }
     /**
      *
      *

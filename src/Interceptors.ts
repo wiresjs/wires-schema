@@ -66,8 +66,33 @@ export class ElementInterceptor {
      * @memberOf ElementInterceptor
      */
     public consume(element: IUniversalComment<any> | IUniversalElement<any>, schema: JSONSchema) {
+        return;
+    }
+}
 
+export class TextNodeInterceptor {
+    /**
+     *
+     *
+     * @param {JSONSchema} element
+     * @returns {*}
+     *
+     * @memberOf ElementInterceptor
+     */
+    public intercept(element: JSONSchema): any {
+        return;
+    }
 
+    /**
+     *
+     *
+     * @param {(IUniversalComment<any> | IUniversalElement<any>)} element
+     * @param {JSONSchema} schema
+     * @returns
+     *
+     * @memberOf ElementInterceptor
+     */
+    public consume(element: IUniversalTextNode<any>, schema: JSONSchema) {
         return;
     }
 }

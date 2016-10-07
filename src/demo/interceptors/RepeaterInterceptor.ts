@@ -1,6 +1,6 @@
 import { IUniversalAttribute } from "universal-dom";
-import { JSONSchema } from "./../JSONSchema";
-import { AttributeInterceptor } from "../Interceptors";
+import { JSONSchema } from "./../../JSONSchema";
+import { AttributeInterceptor } from "../../Interceptors";
 
 export class SchemaRepeaterInterceptor extends AttributeInterceptor {
     public intercept(attr: JSONSchema, element: JSONSchema): any {

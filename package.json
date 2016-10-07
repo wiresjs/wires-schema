@@ -44,7 +44,7 @@
     "@types/app-root-path": "^1.2.4",
     "@types/node": "^6.0.45",
     "app-root-path": "^2.0.1",
-    "universal-dom": "^1.0.3",
+    "universal-dom": "^1.0.4",
     "walk": "^2.3.9",
     "wires-html-parser": "^1.0.2"
   }

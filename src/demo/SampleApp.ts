@@ -1,8 +1,11 @@
-import { SchemaFileAdapter } from "./SchemaFileAdapter";
+import { Inflation } from "./../Inflation";
+import { SchemaFileAdapter } from "./FileAdapter";
 import { Context } from "./../Context";
-import { SchemaRepeaterInterceptor } from "./SchemaRepeaterInterceptor";
-import { SchemaAttributeInterceptor } from "./SchemaAttributeInterceptor";
+import { SchemaRepeaterInterceptor } from "./interceptors/RepeaterInterceptor";
+import { SchemaAttributeInterceptor } from "./interceptors/AttributeInterceptor";
+import { SchemaTextInterceptor } from "./interceptors/TextInterceptor";
 import { Schema } from "./../Schema";
+import { Dom } from "universal-dom";
 
 
 class MyFrameWorkApplication {
@@ -17,6 +20,8 @@ export let SampleApp = (): Schema => {
     // Set schema adapater
     schema.setAdapter(new SchemaFileAdapter("views/"));
 
+    // Regular text nodes
+    schema.registerTextNodeInterceptor(new SchemaTextInterceptor());
 
     // register generic attribute interceptor
     // this one will handle basic watchers e.g. class="{{user.active ? 'active' : 'false'}}"
@@ -30,9 +35,13 @@ export let SampleApp = (): Schema => {
     schema.addAttributeInterceptor("ws-repeat",
         new SchemaRepeaterInterceptor());
 
-
-    schema.digest((json) => {
-        let context = new Context(new MyFrameWorkApplication());
+    let context = new Context(new MyFrameWorkApplication());
+    schema.setRootContext(context);
+    schema.digest();
+    schema.onRequest((json) => {
+        let inflation = new Inflation(schema, context);
+        inflation.setRootSelector(".application");
+        return inflation.start(json["foo.html"]);
     });
     return schema;
 };

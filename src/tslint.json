@@ -15,6 +15,7 @@
         "ordered-imports": false,
         "no-reference": false,
         "no-var-requires": false,
+         "max-line-length": [true, 200],
         "no-console": [
             false
         ]
