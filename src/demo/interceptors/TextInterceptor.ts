@@ -20,7 +20,10 @@ export class SchemaTextInterceptor extends TextNodeInterceptor {
         // here we get
         // [ 'Hello ',   { expression: 'user.name', watchable: [ 'user.name' ] }
         // one thing left is to evaluate and watch ....
-        text.setValue(json.value);
+        if (!text.isRehydrated()) {
+            text.setValue(json.value);
+        }
+
         return;
     }
 }
