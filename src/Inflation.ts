@@ -77,7 +77,7 @@ export class Inflation {
             if (item.type === "tag") {
                 let el = <IUniversalElement<any>>(parentChildren[index] ? parentChildren[index] : Dom.createElement(item.name));
                 if (!el.isRehydrated()) {
-                     console.log("SSR node render", el);
+                    console.log("node render", el);
                     el.appendTo(parent);
                 } else {
                     console.log("RE-hydrated tag", el);
@@ -89,7 +89,7 @@ export class Inflation {
             if (item.type === "text") {
                 let el = <IUniversalTextNode<any>>(parentChildren[index] ? parentChildren[index] : Dom.createTextNode(item.value));
                 if (!el.isRehydrated()) {
-                    console.log("SSR text render", el);
+                    console.log("text render", el);
                     el.appendTo(parent);
                 } else {
                     console.log("RE-hydrate text", el);
